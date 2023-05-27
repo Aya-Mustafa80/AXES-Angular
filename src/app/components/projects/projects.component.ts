@@ -4,7 +4,7 @@ import { documentToHtmlString } from '@contentful/rich-text-html-renderer';
 import { Document } from '@contentful/rich-text-types';
 import { HttpClient } from '@angular/common/http';
 import { marked } from 'marked';
-
+import { AxisServicesService } from 'src/app/Services/axis-services.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
@@ -19,7 +19,7 @@ export class ProjectsComponent implements OnInit {
   data: any;
   html = '';
   filteredData: any = [];
-  Id: number | undefined;
+  Id: any;
   OneProject: any;
   empty = false;
   popup = false; //false
@@ -30,7 +30,8 @@ export class ProjectsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private auth: AxisServicesService
   ) {
     /*  this.html = marked(
       '# This is a Markdown heading\n\nAnd this is a paragraph.'
@@ -38,6 +39,9 @@ export class ProjectsComponent implements OnInit {
     /* this.data?.forEach((element: any) => {
       element.attributes.description = marked(element.attributes.description);
     }); */
+
+    this.getProject(this.Id);
+    this.getData(this.Cat);
   }
   ngOnInit(): void {
     this.Cat = this.route.snapshot.paramMap.get('Cat')!;
@@ -62,22 +66,23 @@ export class ProjectsComponent implements OnInit {
   ]; */
 
   getData(Cat: string) {
-    this.http
+    /* this.http
       .get(
         `https://axes.onrender.com/api/projects/?filters[category][$eq]=${Cat}&populate=*`
       )
-      .subscribe((data) => {
-        this.data = data;
-        this.filteredData = this.data.data;
-        console.log(this.filteredData);
-        if (this.filteredData.length === 0) {
-          this.empty = true;
-          this.NoPro = false;
-        } else {
-          this.empty = false;
-          this.NoPro = true;
-        }
-      });
+      .subscribe( */
+    this.auth.getData(Cat).subscribe((data) => {
+      this.data = data;
+      this.filteredData = this.data.data;
+      console.log(this.filteredData);
+      if (this.filteredData.length === 0) {
+        this.empty = true;
+        this.NoPro = false;
+      } else {
+        this.empty = false;
+        this.NoPro = true;
+      }
+    });
   }
   /*  filterData(category: string) {
     this.TestProjects.forEach((element: any) => {
@@ -91,29 +96,30 @@ export class ProjectsComponent implements OnInit {
     });
   } */
   getProject(id: number) {
-    this.http
+    /* this.http
       .get(`https://axes.onrender.com/api/projects/${id}?populate=*`)
-      .subscribe((data) => {
-        this.OneProject = data;
-        this.OneProject = this.OneProject.data;
-        this.OneProject.attributes.description = marked(
-          this.OneProject.attributes.description
-        );
-        console.log(this.OneProject);
-        this.Pics = this.OneProject.attributes.projectPhotos.data;
-        /* this.thumbSrc = this.Pics[0].attributes.url; */
-        // this.thumbSrc = this.Pics[0].attributes.formats.thumbnail.url;
-        /* console.log(this.thumbSrc); */
+      .subscribe( */
+    this.auth.getProject(id).subscribe((data) => {
+      this.OneProject = data;
+      this.OneProject = this.OneProject.data;
+      this.OneProject.attributes.description = marked(
+        this.OneProject.attributes.description
+      );
+      console.log(this.OneProject);
+      this.Pics = this.OneProject.attributes.projectPhotos.data;
+      /* this.thumbSrc = this.Pics[0].attributes.url; */
+      // this.thumbSrc = this.Pics[0].attributes.formats.thumbnail.url;
+      /* console.log(this.thumbSrc); */
 
-        this.OneProject.attributes.videoDataJson.forEach((element: any) => {
-          const parts = element.split('/');
-          const lastPart = parts[parts.length - 1];
-          element = 'https://player.vimeo.com/video/' + lastPart;
-          this.Vids?.push(element);
-        });
-        this.Vids.forEach((vd: any) => {
-          this.safeVids.push(this.sanitizer.bypassSecurityTrustResourceUrl(vd));
-        });
+      this.OneProject.attributes.videoDataJson.forEach((element: any) => {
+        const parts = element.split('/');
+        const lastPart = parts[parts.length - 1];
+        element = 'https://player.vimeo.com/video/' + lastPart;
+        this.Vids?.push(element);
       });
+      this.Vids.forEach((vd: any) => {
+        this.safeVids.push(this.sanitizer.bypassSecurityTrustResourceUrl(vd));
+      });
+    });
   }
 }
