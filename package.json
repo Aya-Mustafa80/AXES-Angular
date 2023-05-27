@@ -21,6 +21,7 @@
     "@contentful/rich-text-html-renderer": "^16.0.2",
     "@ngx-translate/core": "^14.0.0",
     "@syncfusion/ej2-angular-richtexteditor": "^20.4.48-ngcc",
+    "animate.css": "^4.1.1",
     "marked": "^4.2.12",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
