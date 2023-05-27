@@ -42,7 +42,9 @@ button {
   font-family: "Trap Medium";
   font-size: 1.4em;
   border-radius: 25px;
+  cursor: pointer;
 }
+
 .pic {
   width: 28%;
   height: 80%;
